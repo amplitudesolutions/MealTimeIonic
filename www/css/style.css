@@ -1,0 +1,20 @@
+/* Empty. Add your own CSS if you like */
+
+
+.fader.ng-enter {
+  -webkit-animation: fadeInRight 1s;
+  -moz-animation: fadeInRight 1s;
+  -ms-animation: fadeInRight 1s;
+  animation: fadeInRight 1s;
+}
+
+.fader.ng-leave {
+  -webkit-animation: fadeOutRight 1s;
+  -moz-animation: fadeOutRight 1s;
+  -ms-animation: fadeOutRight 1s;
+  animation: fadeOutRight 1s;
+}
+
+.fader.ng-leave-active {
+  opacity: 0;
+}
