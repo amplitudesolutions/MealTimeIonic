@@ -1,4 +1,4 @@
-angular.module('listServices', ['ionic', 'firebase'])
+angular.module('mealtime.services.lists', ['ionic', 'firebase'])
 
   .factory('list', ['$firebaseArray', 'Auth', 'getDBUrl', function($firebaseArray, Auth, getDBUrl) {
     //var list = $firebaseArray(new Firebase(getDBUrl.path + '/' + user.get().uid + '/lists/Default'));

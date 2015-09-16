@@ -1,0 +1,30 @@
+<ion-pane>
+  <!-- <ion-header-bar class="bar-positive">
+    <button class="button button-icon icon ion-navicon"></button>
+    <h1 class="title">MealTime</h1>
+    <button class="button button-icon icon ion-android-cart"></button>
+  </ion-header-bar> -->
+  <ion-content ng-controller="MainCtrl">
+    <a ng-click="logout()">Log out</a>
+    <ul class="list">
+      <div class="item item-divider">
+        Category Here.
+      </div>
+      <li class="item item-checkbox fader" ng-repeat="li in listItems | filter: {gotit: false}" ng-click="addToCart(li)">
+        <label class="checkbox">
+          <input type="checkbox">
+        </label>
+        {{items[items.$indexFor(li.$id)].name}} <span style="font-size:10px">Qty: {{li.quantity}}</span>
+      </li>
+      <div class="item item-divider">
+        In your basket
+      </div>
+      <li class="item item-checkbox fader" ng-repeat="li in listItems | filter: {gotit: true}" ng-click="removeFromCart(li)">
+        <label class="checkbox">
+          <input type="checkbox" checked>
+        </label>
+        {{items[items.$indexFor(li.$id)].name}} <span style="font-size:10px">Qty: {{li.quantity}}</span>
+      </li>
+    </ul>
+  </ion-content>
+</ion-pane>

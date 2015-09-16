@@ -3,9 +3,9 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'firebase', 'listServices'])
+angular.module('mealtime', ['ionic', 'mealtime.controllers', 'mealtime.services'])
 
-  .run(function($ionicPlatform) {
+  .run(function($ionicPlatform, $rootScope, $state) {
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -16,62 +16,53 @@ angular.module('starter', ['ionic', 'firebase', 'listServices'])
         StatusBar.styleDefault();
       }
     });
+
+    $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
+      // We can catch the error thrown when the $requireAuth promise is rejected
+      // and redirect the user back to the home page
+      if (error === "AUTH_REQUIRED") {
+        $state.go("login");
+      }
+    });
   })
 
-  // MAIN APPLICATION
+  .config(function($stateProvider, $urlRouterProvider) {
 
-  .controller('MainCtrl', ['$scope', 'Auth', 'getDBUrl', '$firebaseArray', 'list', function($scope, Auth, getDBUrl, $firebaseArray, list) {
-    var user = {email: 'demo@mealtime.io', password: 'demo'};
-    $scope.userAuth = '';
+    // Ionic uses AngularUI Router which uses the concept of states
+    // Learn more here: https://github.com/angular-ui/ui-router
+    // Set up the various states which the app can be in.
+    // Each state's controller can be found in controllers.js
+    $stateProvider
 
+    // setup an abstract state for the tabs directive
+    .state('list', {
+      url: "/list",
+      templateUrl: "templates/list.html",      
+      resolve: {
+        // controller will not be loaded until $waitForAuth resolves
+        // Auth refers to our $firebaseAuth wrapper in the example above
+        "currentAuth": ["Auth", function(Auth) {
+          // $waitForAuth returns a promise so the resolve waits for it to complete]\
+          return Auth.$requireAuth();
+        }]
+      }
+    })
 
-    //TODO: NEED TO MOVE TO ACTUAL LOGIN SCREEN ONE DAY
-    Auth.$authWithPassword(user).then(function(authData) {
-      $scope.userAuth = authData;
-    }).catch(function(error) {
-      console.log(error);
+    .state('login', {
+      url: "/login",
+      templateUrl: "templates/login.html",
+      controller: 'LoginCtrl',
+      resolve: {
+         // controller will not be loaded until $waitForAuth resolves
+         // Auth refers to our $firebaseAuth wrapper in the example above
+         "currentAuth": ["Auth", function(Auth) {
+           // $waitForAuth returns a promise so the resolve waits for it to complete
+           return Auth.$waitForAuth();
+         }]
+       }
     });
 
-    // Get Grocery List Items and bind to list.
-
-    var itemsRef = new Firebase(getDBUrl.path + '/' + Auth.$getAuth().uid + '/items');
-    $scope.items = $firebaseArray(itemsRef);
-
-    var listRef = new Firebase(getDBUrl.path + '/' + Auth.$getAuth().uid + '/lists/Default/items');
-    $scope.listItems = $firebaseArray(listRef);
-
-    $scope.addToCart = function(item) {
-      list.addToCart(item);
-    };
-
-    $scope.removeFromCart = function(item) {
-      list.removeFromCart(item);
-    };
-
-  }])
-
-  // CORE SERVICES
-
-  .factory('Auth', ['$firebaseAuth', 'getDBUrl', function($firebaseAuth, getDBUrl) {
-    var ref = new Firebase(getDBUrl.path);
-    return $firebaseAuth(ref);
-    }
-  ])
-
-  .factory('getDBUrl', ['$location', function($location) {
-
-    // FOR IONIC DEVELOPMENT, THERE IS NO localhost or location to find.
-
-    var dbURL = null;
-    // if ($location.host() == 'localhost' || $location.host() == 'mealtimedev.firebaseapp.com') {
-      // DEV DB
-        dbURL = "https://mealtimedev.firebaseio.com";
-    // } else if ($location.host() == 'intense-inferno-9799.firebaseapp.com') {
-    // } else if ($location.host() == 'mealtimeprod.firebaseapp.com') {
-    //   dbURL = "https://mealtimeprod.firebaseio.com";
-    // }
-    
-    return {path: dbURL};
-  }])
-
+    // if none of the above states are matched, use this as the fallback
+    $urlRouterProvider.otherwise('/login');
+  })
 ;
